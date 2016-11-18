@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<fileset-config file-format-version="1.2.0" simple-config="false" sync-formatter="false">
+  <fileset name="test code" enabled="true" check-config-name="Customized Google Checks (Test)" local="false">
+    <file-match-pattern match-pattern=".*Test\.java$" include-pattern="true"/>
+  </fileset>
+  <fileset name="all" enabled="true" check-config-name="Customized Google Checks" local="false">
+    <file-match-pattern match-pattern="\.java$" include-pattern="true"/>
+    <file-match-pattern match-pattern="^.*Test\.java$" include-pattern="false"/>
+    <file-match-pattern match-pattern=".*\.apt_generated.\.*" include-pattern="false"/>
+  </fileset>
+</fileset-config>

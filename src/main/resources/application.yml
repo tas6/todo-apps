@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    driver-class-name: net.sf.log4jdbc.DriverSpy
+    url: jdbc:log4jdbc:h2:file:/tmp/todo-db
+    username: sa
+    password:
+    sql-script-encoding: utf-8
+  messages:
+    basename: messages
+doma:
+  dialect: H2
+  sql-file-repository: GREEDY_CACHE
+  naming: LOWER_CASE
+logging:
+  level:
+    jdbc: off
+    jdbc.sqltiming: debug

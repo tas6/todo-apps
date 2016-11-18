@@ -1,0 +1,60 @@
+buildscript {
+    ext {
+        springBootVersion = '1.4.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+jar {
+    baseName = 'todo-apps'
+    version = '0.0.1-SNAPSHOT'
+}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+processResources.destinationDir = compileJava.destinationDir
+compileJava.dependsOn processResources
+
+def aptGeneratePath = '.apt_generated'
+compileJava.options.compilerArgs = ['-s', aptGeneratePath]
+new File(aptGeneratePath).mkdirs()
+
+dependencies {
+
+    // compile
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.flywaydb:flyway-core')
+    compile('org.seasar.doma.boot:doma-spring-boot-starter:1.1.0')
+    compile('org.lazyluke:log4jdbc-remix:0.2.7')
+    compile('org.apache.commons:commons-lang3:3.5')
+
+    // compileOnly
+    compileOnly('org.projectlombok:lombok')
+
+    // runtime
+    runtime('com.h2database:h2')
+
+    // testCompile
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('org.dbunit:dbunit:2.5.0')
+    testCompile('com.github.springtestdbunit:spring-test-dbunit:1.2.0')
+
+    // testCompileOnly
+    testCompileOnly('org.projectlombok:lombok')
+
+}
