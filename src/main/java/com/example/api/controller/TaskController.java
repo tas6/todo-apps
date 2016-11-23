@@ -45,7 +45,7 @@ public class TaskController {
       @RequestBody @Valid RequestTask requestTask,
       UriComponentsBuilder uriBuilder) {
 
-    Task createdTask = taskService.add(Task.createTask(null, requestTask));
+    Task createdTask = taskService.add(new Task(null, requestTask));
 
     return createResponseEntityCreated(
         createdTask,
@@ -60,7 +60,7 @@ public class TaskController {
       @RequestBody @Valid RequestTask requestTask)
       throws ResourceNotFoundException, InvalidVersionException {
 
-    return taskService.edit(Task.createTask(id, requestTask));
+    return taskService.edit(new Task(id, requestTask));
   }
 
   @RequestMapping(method = RequestMethod.DELETE, path = "{id}")

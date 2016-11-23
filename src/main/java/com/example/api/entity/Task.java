@@ -50,13 +50,12 @@ public class Task {
     this.version      = version;
   }
 
-  public static Task createTask(Integer id, RequestTask request) {
-    return new Task(
-        id,
-        request.getSubject(),
-        request.getDescription(),
-        request.getDone(),
-        request.getVersion());
+  public Task(Integer id, RequestTask request) {
+    this.id           = id;
+    this.subject      = request.getSubject();
+    this.description  = request.getDescription();
+    this.done         = request.getDone();
+    this.version      = request.getVersion();
   }
 
 }

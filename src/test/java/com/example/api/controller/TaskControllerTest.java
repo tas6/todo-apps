@@ -1,6 +1,7 @@
 package com.example.api.controller;
 
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,7 +30,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.example.api.controller.request.RequestTask;
 import com.example.api.entity.Task;
+import com.example.api.exception.ResourceNotFoundException;
 import com.example.api.service.TaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,9 +46,12 @@ public class TaskControllerTest {
 
   @InjectMocks
   TaskController taskController;
-  
+
   @Mock
   TaskService taskService;
+
+  @InjectMocks
+  RestExceptionHandler handler;
 
   MockMvc mvc;
 
@@ -53,8 +59,11 @@ public class TaskControllerTest {
   ObjectMapper jsonMapper;
 
   @Before
-  public void before() {
-    this.mvc = MockMvcBuilders.standaloneSetup(this.taskController).build();
+  public void setUp() throws Exception {
+    this.mvc = MockMvcBuilders
+        .standaloneSetup(taskController)
+        .setControllerAdvice(handler)
+        .build();
   }
 
   @Test
@@ -72,7 +81,7 @@ public class TaskControllerTest {
   }
 
   @Test
-  public void getでidパラメータ指定した場合にタスクが取得できる() throws Exception {
+  public void getでidパラメータを指定した場合にタスクが取得できる() throws Exception {
     // SetUp
     Task task = new Task(1, "件名", "内容", Boolean.FALSE, 1);
     when(taskService.selectById(1)).thenReturn(task);
@@ -81,6 +90,17 @@ public class TaskControllerTest {
         .perform(get("/v1/tasks/{id}", 1))
         .andExpect(status().isOk())
         .andExpect(content().json(jsonMapper.writeValueAsString(task)))
+        .andDo(print());
+  }
+
+  @Test
+  public void getでidパラメータを指定した場合にデータが存在しない場合はNotFoundが返る() throws Exception {
+    // SetUp
+    when(taskService.selectById(1)).thenThrow(new ResourceNotFoundException());
+    // Exercise, Verify
+    mvc
+        .perform(get("/v1/tasks/{id}", 1))
+        .andExpect(status().isNotFound())
         .andDo(print());
   }
 
@@ -103,17 +123,33 @@ public class TaskControllerTest {
   @Test
   public void putでタスクを更新できる() throws Exception {
     // SetUp
-    Task task     = new Task(1, "new件名", "new内容", Boolean.TRUE, 1);
-    Task expected = new Task(1, "new件名", "new内容", Boolean.TRUE, 2);
+    RequestTask req      = new RequestTask("new件名", "new内容", Boolean.TRUE, 1);
+    Task        task     = new Task(1, req);
+    Task        expected = new Task(1, "new件名", "new内容", Boolean.TRUE, 2);
     when(taskService.edit(task)).thenReturn(expected);
     // Exercise, Verify
     mvc
       .perform(put("/v1/tasks/{id}", task.getId())
           .contentType(MediaType.APPLICATION_JSON)
-          .content(jsonMapper.writeValueAsString(task)))
+          .content(jsonMapper.writeValueAsString(req)))
       .andExpect(status().isOk())
       .andExpect(content().json(jsonMapper.writeValueAsString(expected)))
       .andDo(print());
+  }
+
+  @Test
+  public void putで対象データがない場合はNotFoundが返る() throws Exception {
+    // SetUp
+    RequestTask req  = new RequestTask("件名", "内容", Boolean.TRUE, 1);
+    Task        task = new Task(1, req);
+    when(taskService.edit(task)).thenThrow(new ResourceNotFoundException());
+    // Exercise, Verify
+    mvc
+        .perform(put("v1/tasks/{id}", 1)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonMapper.writeValueAsString(req)))
+        .andExpect(status().isNotFound())
+        .andDo(print());
   }
 
   @Test
@@ -125,6 +161,17 @@ public class TaskControllerTest {
       .perform(delete("/v1/tasks/{id}", 1))
       .andExpect(status().isNoContent())
       .andDo(print());
+  }
+
+  @Test
+  public void deleteで対象データがない場合はNotFoundが返る() throws Exception {
+    // SetUp
+    doThrow(new ResourceNotFoundException()).when(taskService).remove(1);
+    // Exercise, Verify
+    mvc
+        .perform(put("v1/tasks/{id}", 1))
+        .andExpect(status().isNotFound())
+        .andDo(print());
   }
 
 }
