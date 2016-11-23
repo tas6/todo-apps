@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErrorResponse {
-  String error;
   String message;
   List<FieldErrorResponse> fieldErrors;
 

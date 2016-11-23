@@ -6,8 +6,6 @@ spring:
     username: sa
     password:
     sql-script-encoding: utf-8
-  messages:
-    basename: messages
 doma:
   dialect: H2
   sql-file-repository: GREEDY_CACHE
