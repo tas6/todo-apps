@@ -47,6 +47,8 @@ dependencies {
     // compile
     compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile('org.springframework.boot:spring-boot-devtools')
     compile('org.flywaydb:flyway-core')
     compile('org.seasar.doma.boot:doma-spring-boot-starter:1.1.0')
     compile('org.lazyluke:log4jdbc-remix:0.2.7')
@@ -59,7 +61,7 @@ dependencies {
     runtime('com.h2database:h2')
 
     // providedRuntime
-    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+    providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
 
     // testCompile
     testCompile('org.springframework.boot:spring-boot-starter-test')
