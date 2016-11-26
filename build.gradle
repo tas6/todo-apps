@@ -3,7 +3,8 @@ buildscript {
         springBootVersion = '1.4.2.RELEASE'
     }
     repositories {
-        mavenCentral()
+        jcenter()
+        maven { url "http://repo.spring.io/libs-snapshot" }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -11,20 +12,26 @@ buildscript {
 }
 
 apply plugin: 'java'
+apply plugin: 'war'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
-jar {
+war {
     baseName = 'todo-apps'
-    version = '0.0.1-SNAPSHOT'
+    version =  '0.0.1'
 }
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+    jcenter()
+    maven { url "http://repo.spring.io/libs-snapshot" }
 }
 
+// doma用の設定
+// 参照:http://doma.readthedocs.io/ja/stable/build/
+// ->
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 processResources.destinationDir = compileJava.destinationDir
 compileJava.dependsOn processResources
@@ -32,6 +39,8 @@ compileJava.dependsOn processResources
 def aptGeneratePath = '.apt_generated'
 compileJava.options.compilerArgs = ['-s', aptGeneratePath]
 new File(aptGeneratePath).mkdirs()
+// <-
+
 
 dependencies {
 
@@ -48,6 +57,9 @@ dependencies {
 
     // runtime
     runtime('com.h2database:h2')
+
+    // providedRuntime
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
 
     // testCompile
     testCompile('org.springframework.boot:spring-boot-starter-test')
