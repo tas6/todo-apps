@@ -50,7 +50,7 @@ public class TaskController {
     return createResponseEntityCreated(
         createdTask,
         uriBuilder,
-        "api/tasks/{id}",
+        "/v1/tasks/{id}",
         createdTask.getId());
   }
 
