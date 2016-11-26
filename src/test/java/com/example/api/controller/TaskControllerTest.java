@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.example.api.controller.request.RequestTask;
 import com.example.api.entity.Task;
+import com.example.api.exception.InvalidVersionException;
 import com.example.api.exception.ResourceNotFoundException;
 import com.example.api.service.TaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,19 +52,19 @@ public class TaskControllerTest {
   @Mock
   TaskService taskService;
 
-  @InjectMocks
-  RestExceptionHandler handler;
-
-  MockMvc mvc;
+  @Autowired
+  RestExceptionHandler exceptionHandler;
 
   @Autowired
   ObjectMapper jsonMapper;
+
+  MockMvc mvc;
 
   @Before
   public void setUp() throws Exception {
     this.mvc = MockMvcBuilders
         .standaloneSetup(taskController)
-        .setControllerAdvice(handler)
+        .setControllerAdvice(exceptionHandler)
         .build();
   }
 
@@ -81,7 +83,7 @@ public class TaskControllerTest {
   }
 
   @Test
-  public void getでidパラメータを指定した場合にタスクが取得できる() throws Exception {
+  public void getでidを指定した場合にタスクが取得できる() throws Exception {
     // SetUp
     Task task = new Task(1, "件名", "内容", Boolean.FALSE, 1);
     when(taskService.selectById(1)).thenReturn(task);
@@ -94,7 +96,7 @@ public class TaskControllerTest {
   }
 
   @Test
-  public void getでidパラメータを指定した場合にデータが存在しない場合はNotFoundが返る() throws Exception {
+  public void getでidを指定した場合にデータが存在しない場合はNotFoundが返る() throws Exception {
     // SetUp
     when(taskService.selectById(1)).thenThrow(new ResourceNotFoundException());
     // Exercise, Verify
@@ -117,6 +119,7 @@ public class TaskControllerTest {
           .content(jsonMapper.writeValueAsString(task)))
       .andExpect(status().isCreated())
       .andExpect(content().json(jsonMapper.writeValueAsString(expected)))
+      .andExpect(header().string("Location", "http://localhost/v1/tasks/1"))
       .andDo(print());
   }
 
@@ -145,10 +148,29 @@ public class TaskControllerTest {
     when(taskService.edit(task)).thenThrow(new ResourceNotFoundException());
     // Exercise, Verify
     mvc
-        .perform(put("v1/tasks/{id}", 1)
+        .perform(put("/v1/tasks/{id}", task.getId())
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonMapper.writeValueAsString(req)))
         .andExpect(status().isNotFound())
+        .andExpect(content().json(
+            jsonMapper.writeValueAsString(new ErrorResponse("Resource Not Found"))))
+        .andDo(print());
+  }
+
+  @Test
+  public void putで楽観的排他エラーが発生した場合はConflictが返る() throws Exception {
+    // SetUp
+    RequestTask req  = new RequestTask("件名", "内容", Boolean.TRUE, 1);
+    Task        task = new Task(1, req);
+    when(taskService.edit(task)).thenThrow(new InvalidVersionException());
+    // Exercise, Verify
+    mvc
+        .perform(put("/v1/tasks/{id}", task.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonMapper.writeValueAsString(req)))
+        .andExpect(status().isConflict())
+        .andExpect(content().json(
+            jsonMapper.writeValueAsString(new ErrorResponse("Optimistic Lock Failed"))))
         .andDo(print());
   }
 
@@ -169,8 +191,10 @@ public class TaskControllerTest {
     doThrow(new ResourceNotFoundException()).when(taskService).remove(1);
     // Exercise, Verify
     mvc
-        .perform(put("v1/tasks/{id}", 1))
+        .perform(delete("/v1/tasks/{id}", 1))
         .andExpect(status().isNotFound())
+        .andExpect(content().json(
+            jsonMapper.writeValueAsString(new ErrorResponse("Resource Not Found"))))
         .andDo(print());
   }
 
