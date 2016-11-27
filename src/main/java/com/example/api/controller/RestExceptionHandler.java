@@ -32,10 +32,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
       HttpStatus status,
       WebRequest request) {
 
-    if (body instanceof ErrorResponse == false) {
-      body = new ErrorResponse(ex.getMessage());
-    }
-
+    body = new ErrorResponse(ex.getMessage());
     return super.handleExceptionInternal(ex, body, headers, status, request);
   }
 

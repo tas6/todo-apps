@@ -1,4 +1,4 @@
-package com.example.api.entity;
+package com.example.api.controller.request;
 
 import static com.example.api.util.ValidateTestUtil.assertViolations;
 
@@ -16,15 +16,15 @@ import org.junit.runner.RunWith;
 
 import com.example.api.util.ValidateTestUtil.Fixture;
 
-public class TaskTest {
+public class RequestTaskTest {
 
   @RunWith(Theories.class)
   public static class subjectに対するテスト {
 
     static int MAX_LENGTH = 100;
 
-    Validator validator;
-    Task      sut;
+    Validator   validator;
+    RequestTask sut;
 
     @DataPoints
     public static Fixture<?>[] FIXTURES = {
@@ -45,7 +45,7 @@ public class TaskTest {
     @Theory
     public void subjectの入力チェック(Fixture<String> fixture) {
       // SetUp
-      Task sut = new Task(1, fixture.getValue(), "内容", false, 0);
+      sut = new RequestTask(fixture.getValue(), "内容", false, 0);
       // Exercise, Verify
       assertViolations(validator.validate(sut), fixture);
     }
@@ -57,8 +57,8 @@ public class TaskTest {
 
     static int MAX_LENGTH = 500;
 
-    Validator validator;
-    Task      sut;
+    Validator   validator;
+    RequestTask sut;
 
     @DataPoints
     public static Fixture<?>[] FIXTURES = {
@@ -79,7 +79,7 @@ public class TaskTest {
     @Theory
     public void descriptionの入力チェック(Fixture<String> fixture) {
       // SetUp
-      Task sut = new Task(1, "件名", fixture.getValue(), false, 0);
+      sut = new RequestTask("件名", fixture.getValue(), false, 0);
       // Exercise, Verify
       assertViolations(validator.validate(sut), fixture);
     }

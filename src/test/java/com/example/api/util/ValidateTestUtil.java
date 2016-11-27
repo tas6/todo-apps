@@ -22,7 +22,7 @@ public class ValidateTestUtil {
    * @param violations  バリデーション結果
    * @param fixture     期待値を含むFixture
    */
-  public static void assertViolations(Set<ConstraintViolation<Task>> violations,
+  public static <T> void assertViolations(Set<ConstraintViolation<T>> violations,
       Fixture<?> fixture) {
 
     // 件数を確認
@@ -47,4 +47,5 @@ public class ValidateTestUtil {
     int       errorCount;
     Class<?>  errorClass;
   }
+
 }

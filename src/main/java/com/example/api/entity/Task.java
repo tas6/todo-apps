@@ -23,12 +23,8 @@ public class Task {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   final Integer id;
 
-  @NotNull
-  @Length(min = 1, max = 100)
   final String subject;
 
-  @NotNull
-  @Length(min = 1, max = 500)
   final String description;
 
   final Boolean done;
@@ -51,11 +47,13 @@ public class Task {
   }
 
   public Task(Integer id, RequestTask request) {
-    this.id           = id;
-    this.subject      = request.getSubject();
-    this.description  = request.getDescription();
-    this.done         = request.getDone();
-    this.version      = request.getVersion();
+    this(
+        id,
+        request.getSubject(),
+        request.getDescription(),
+        request.getDone() != null ? request.getDone() : Boolean.FALSE,
+        request.getVersion()
+        );
   }
 
 }

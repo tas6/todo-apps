@@ -26,7 +26,7 @@ public class CustomeErrorController implements ErrorController {
   @RequestMapping(value = PATH)
   public ErrorResponse error(HttpServletRequest request) {
     Map<String, Object> errorAttributes = getErrorAttributes(request, debug);
-    return new ErrorResponse(errorAttributes.get("message").toString());
+    return new ErrorResponse(errorAttributes.get("error").toString());
   }
 
   @Override
