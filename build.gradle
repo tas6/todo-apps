@@ -28,7 +28,7 @@ war {
 remotes {
   api001 {
     host = 'todo-api-server'
-    user = 'ec2-user'
+    user = 'jenkins'
     identity = new File('~/.ssh/XXX.pem')
   }
 }
